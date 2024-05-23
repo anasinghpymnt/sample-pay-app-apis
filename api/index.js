@@ -54,8 +54,7 @@ const openapiValidator = new OpenApiValidator({
   ignorePaths: /.*\/token$/i,
   validateRequests: false,
   validateResponses: false,
-  operationHandlers: path.join(__dirname),
-  fileUploader: { dest: config.FILE_UPLOAD_PATH },
+  operationHandlers: path.join(__dirname)
 });
 
 openapiValidator.install(app);
