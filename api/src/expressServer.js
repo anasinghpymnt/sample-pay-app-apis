@@ -14,7 +14,7 @@ const config = require('./config');
 
 class ExpressServer {
   constructor(port, openApiYaml) {
-    this.port = port;
+    this.port =  process.env.PORT || port;
     this.app = express();
     this.openApiPath = openApiYaml;
     try {
@@ -53,8 +53,8 @@ class ExpressServer {
     });
   }
 
-  launch() {
-    new OpenApiValidator({
+  async launch() {
+    return new OpenApiValidator({
       apiSpec: this.openApiPath,
       ignorePaths: /.*\/token$/i,
       validateRequests: false,
