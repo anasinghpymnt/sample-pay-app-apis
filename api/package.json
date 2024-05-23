@@ -1,0 +1,45 @@
+{
+  "name": "xotp-integration-gateway-ig-rest-api",
+  "version": "v3",
+  "description": " # Introduction Paymentus REST API exposes payment, profile and account data to authenticated users through a widely accepted REST technology. REST APIs are based on representation state transfer (REST) technology, an architectural style and approach to communications often used in web services development. REST technology is generally preferred to SOAP technology because REST leverages less bandwidth, making it more suitable for internet usage. A RESTful API explicitly takes advantage for HTTP methodologies defined by the RFC 2616 protocol. It uses GET to retrieve a resource, PUT to change the state or update a resource, which can be an object, file or block, POST to create the resource and DELETE to remove it.  Paymentus REST API acts as a wrapper around Paymentus XOTP API and maps HTTP GET, PUT, POST and DELETE verbs to corresponding endpoints of the XOTP API.  Paymentus API's use Bearer authentication.To authenticate you will:  - Click on Authorize button above and provide the Request secret, jwt token will generated and will be persisted for all requests. ",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "keywords": [
+    "openapi-generator",
+    "openapi"
+  ],
+  "license": "Unlicense",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "camelcase": "^5.3.1",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "express-openapi-validator": "^3.9.1",
+    "http-proxy": "^1.18.1",
+    "js-yaml": "^3.3.0",
+    "jwt-simple": "^0.5.6",
+    "moment": "^2.30.1",
+    "ono": "^5.0.1",
+    "openapi-sampler": "^1.0.0-beta.15",
+    "swagger-ui-express": "^4.0.2",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "axios": "^0.19.2",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "mocha": "^7.1.1"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true
+    }
+  }
+}

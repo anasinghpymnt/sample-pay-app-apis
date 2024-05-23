@@ -1,0 +1,1602 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: apiteam@paymentus.com
+  description: |2
+
+    # Introduction
+    Paymentus REST API exposes payment, profile and account data to authenticated users through a widely accepted REST technology. REST APIs are based on representation state transfer (REST) technology, an architectural style and approach to communications often used in web services development. REST technology is generally preferred to SOAP technology because REST leverages less bandwidth, making it more suitable for internet usage. A RESTful API explicitly takes advantage for HTTP methodologies defined by the RFC 2616 protocol. It uses GET to retrieve a resource, PUT to change the state or update a resource, which can be an object, file or block, POST to create the resource and DELETE to remove it.
+
+    Paymentus REST API acts as a wrapper around Paymentus XOTP API and maps HTTP GET, PUT, POST and DELETE verbs to corresponding endpoints of the XOTP API.
+
+    Paymentus API's use Bearer authentication.To authenticate you will:
+
+    - Click on Authorize button above and provide the Request secret, jwt token will generated and will be persisted for all requests.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://www.paymentus.com/paymentus-authorization-terms/
+  title: XOTP Integration Gateway (IG) REST API
+  version: v3
+servers:
+- url: /api
+security:
+- BearerAuth: []
+tags:
+- description: Payment related Transactions
+  name: payments
+  x-displayName: Payments
+- description: Rest API Profile Transactions
+  name: profiles
+  x-displayName: Profile
+- description: Rest API to fetch Account
+  name: accountInquiry
+  x-displayName: Account Inquiry
+- description: Rest API for Account related operations
+  name: clientAccount
+  x-displayName: Client Account Actions
+paths:
+  /api/token:
+    get:
+      description: ""
+      operationId: getToken
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getToken_200_response'
+          description: Successful operation
+        "401":
+          description: Unauthorized access.
+      security:
+      - BasicAuth: []
+      summary: Get JWT token
+      x-eov-operation-handler: controllers/DefaultController
+  /v2/payments/{tla}:
+    post:
+      description: ""
+      operationId: makePayment
+      parameters:
+      - description: String that points to test TLA
+        explode: false
+        in: path
+        name: tla
+        required: true
+        schema:
+          default: abc
+          type: string
+        style: simple
+      - description: jwt access token  - this access token must include a special
+          scope
+        example: "Bearer {token}"
+        explode: false
+        in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/makePayment_request'
+        description: ""
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/makePayment_200_response'
+          description: Successful operation
+      summary: Make payment
+      tags:
+      - payments
+      x-eov-operation-handler: controllers/PaymentsController
+  /v2/accounts/{tla}:
+    get:
+      description: ""
+      operationId: accountInquiry
+      parameters:
+      - description: String that points to test TLA
+        explode: false
+        in: path
+        name: tla
+        required: true
+        schema:
+          default: abc
+          type: string
+        style: simple
+      - description: jwt access token  - this access token must include a special
+          scope
+        example: "Bearer {token}"
+        explode: false
+        in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        style: simple
+      - allowReserved: true
+        explode: true
+        in: query
+        name: account-number
+        required: true
+        schema:
+          description: customer account number
+          example: "6759371"
+          maxLength: 32
+          minLength: 1
+          type: string
+        style: form
+      - allowReserved: true
+        explode: true
+        in: query
+        name: payment-type-code
+        required: true
+        schema:
+          description: Payment type code configured by Paymentus
+          example: UTILITY
+          maxLength: 32
+          minLength: 1
+          type: string
+        style: form
+      - allowReserved: true
+        explode: true
+        in: query
+        name: auth-token1
+        required: false
+        schema:
+          description: Liability token 1
+          example: "12345"
+          maxLength: 32
+          minLength: 1
+          type: string
+        style: form
+      - allowReserved: true
+        explode: true
+        in: query
+        name: auth-token2
+        required: false
+        schema:
+          description: Liability token 2
+          example: "12345"
+          maxLength: 32
+          minLength: 1
+          type: string
+        style: form
+      - allowReserved: true
+        explode: true
+        in: query
+        name: auth-token3
+        required: false
+        schema:
+          description: Liability token 3
+          example: "12345"
+          maxLength: 32
+          minLength: 1
+          type: string
+        style: form
+      - allowReserved: true
+        explode: true
+        in: query
+        name: account-token
+        required: false
+        schema:
+          description: Account token
+          example: "12345"
+          maxLength: 32
+          minLength: 1
+          type: string
+        style: form
+      - allowReserved: true
+        explode: true
+        in: query
+        name: include-schedules
+        required: false
+        schema:
+          description: Used to include schedules for this account in the response
+          example: true
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountInfoResponse'
+          description: Successful operation
+      summary: Account inquiry by various params
+      tags:
+      - clientAccount
+      x-eov-operation-handler: controllers/ClientAccountController
+  /fetchConfig:
+    get:
+      operationId: fetchClientConfig
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                tenant: abc
+                authUrl: ""
+                appearance:
+                  theme: paymentus
+                language: en
+                paymentMethodOptions:
+                  card:
+                    fields:
+                    - number
+                    - name
+                    - zipcode
+                    - expiry
+                    - cvc
+                    spinner: true
+                    customErrorMessages:
+                      cardNumber: Invalid card number
+                      expiryDate: Invalid expiry date
+                      cvv: Invalid CVV
+                      zip: Invalid ZIP code
+                    messages:
+                      cardNumber: Enter your card number
+                      expiryDate: Enter the expiry date
+                      cvv: Enter the CVV
+                      zip: Enter the ZIP code
+                    placeholders:
+                      number: 4111 1111 1111 1111
+                      expiry: MM/YY
+                      cvc: "123"
+                      zipcode: "12345"
+                      name: John Doe
+                    masks:
+                      cardNumber: "#### #### #### ####"
+                      expiryDate: '##/####'
+                      cvv: '###'
+                      zip: '#####'
+                    hidden:
+                      cardNumber: false
+                      expiryDate: false
+                      cvv: false
+                      zip: false
+                      name: false
+                    styles:
+                      selectors:
+                        cardNumber: .card-number
+                        expiryDate: .expiry-date
+                        cvv: .cvv
+                        zip: .zip
+                        name: .name
+                      styles:
+                        color: black
+                        font-size: 16px
+                    disabled:
+                      cardNumber: false
+                      expiryDate: false
+                      cvv: false
+                      zip: false
+                      name: false
+                    validationRules:
+                      expiryDate: required|expiryDate
+                      cvv: required|cvv
+                      zip: required|zip
+                      name: required|name
+                    layout: vertical
+              schema:
+                $ref: '#/components/schemas/ClientConfig'
+          description: Successful response with client configuration.
+        "401":
+          description: Unauthorized access.
+        "500":
+          description: Internal server error.
+      security:
+      - ApiKeyAuth: []
+      - BearerAuth: []
+      summary: Fetch Client Configuration
+      tags:
+      - Client Configuration
+      x-eov-operation-handler: controllers/ClientConfigurationController
+  /v2/payments/fee/{tla}:
+    post:
+      description: ""
+      operationId: cnvCalculation
+      parameters:
+      - description: String that points to test TLA
+        explode: false
+        in: path
+        name: tla
+        required: true
+        schema:
+          default: abc
+          type: string
+        style: simple
+      - description: jwt access token  - this access token must include a special
+          scope
+        example: "Bearer {token}"
+        explode: false
+        in: header
+        name: Authorization
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvenienceFeeCalculate'
+        description: ""
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConvenienceFeeCalculateResponse'
+          description: Successful operation
+      summary: Request Convenience Fee
+      tags:
+      - payments
+      x-eov-operation-handler: controllers/PaymentsController
+components:
+  parameters:
+    CommonTLA:
+      description: String that points to test TLA
+      explode: false
+      in: path
+      name: tla
+      required: true
+      schema:
+        default: abc
+        type: string
+      style: simple
+    AuthorizationHeader:
+      description: jwt access token  - this access token must include a special scope
+      example: "Bearer {token}"
+      explode: false
+      in: header
+      name: Authorization
+      required: true
+      schema:
+        type: string
+      style: simple
+    VersionHeader:
+      description: XOTP API version
+      explode: false
+      in: header
+      name: version
+      required: false
+      schema:
+        default: v2
+        enum:
+        - v1
+        - v2
+        - v3
+        type: string
+      style: simple
+  schemas:
+    MakeSinglePayment:
+      properties:
+        payment:
+          $ref: '#/components/schemas/MakeSinglePayment_payment'
+      type: object
+    MakeMultiplePayments:
+      properties:
+        payment:
+          $ref: '#/components/schemas/MakeMultiplePayments_payment'
+      required:
+      - customer
+      - header
+      - payment-method
+      type: object
+    MakeASinglePaymentUsingWalletEntry:
+      properties:
+        payment:
+          $ref: '#/components/schemas/MakeASinglePaymentUsingWalletEntry_payment'
+      type: object
+    AccountInfoResponse:
+      example:
+        account-info-response:
+          auth-token1: auth-token1
+          max-pay-later-date: 2000-01-23
+          validation-status: PASSED
+          account-number: account-number
+          date-due: 2000-01-23
+          amount-due: 0.8008282
+      properties:
+        account-info-response:
+          $ref: '#/components/schemas/AccountInfoResponse_account_info_response'
+      type: object
+    SinglePaymentResponse:
+      example:
+        payment-response:
+          reference-number: 774187
+          payment-status-description: Approved
+          convenience-fee: 1.5
+          payment-date: 2000-01-23T04:56:07.000+00:00
+          payment-status: ACCEPTED
+          payment-amount: 20.55
+          total-amount: 22.05
+      properties:
+        payment-response:
+          $ref: '#/components/schemas/SinglePaymentResponse_payment_response'
+      type: object
+    MultiplePaymentResponse:
+      items:
+        $ref: '#/components/schemas/MultiplePaymentResponse_inner'
+      type: array
+    SinglePaymentDuplicateResponse:
+      properties:
+        payment-response:
+          $ref: '#/components/schemas/SinglePaymentDuplicateResponse_payment_response'
+      required:
+      - payment-status
+      type: object
+    Customer:
+      example:
+        address:
+          country: US
+          city: New York
+          state: NY
+          zip-code: "12345"
+          line1: 10 Fifth Ave.
+        day-phone-nr: 9051112233
+        middle-name: V
+        first-name: John
+        email: test@paymentus.com
+        last-name: Doe
+      properties:
+        first-name:
+          description: customer first name or business contact first name
+          example: John
+          maxLength: 64
+          minLength: 1
+          type: string
+        middle-name:
+          description: customer name or business name
+          example: V
+          maxLength: 256
+          minLength: 1
+          type: string
+        last-name:
+          description: customer last name or business contact last name
+          example: Doe
+          maxLength: 64
+          minLength: 1
+          type: string
+        day-phone-nr:
+          description: day phone number
+          example: 9051112233
+          maximum: 9999999999
+          minimum: 0
+          type: number
+        email:
+          description: Used for payment and subsequent payment action notifications
+          example: test@paymentus.com
+          maxLength: 256
+          minLength: 1
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+      type: object
+    Address:
+      example:
+        country: US
+        city: New York
+        state: NY
+        zip-code: "12345"
+        line1: 10 Fifth Ave.
+      properties:
+        line1:
+          description: Customer address line 1
+          example: 10 Fifth Ave.
+          maxLength: 128
+          minLength: 1
+          type: string
+        state:
+          description: State/Province
+          example: NY
+          maxLength: 2
+          minLength: 1
+          type: string
+        zip-code:
+          description: Zip/Postal code
+          example: "12345"
+          maxLength: 9
+          minLength: 1
+          type: string
+        city:
+          description: Customer address city
+          example: New York
+          maxLength: 32
+          minLength: 1
+          type: string
+        country:
+          description: Client country
+          example: US
+          maxLength: 2
+          minLength: 1
+          type: string
+      type: object
+    PaymentMethodCC:
+      example:
+        cvv: "123"
+        fi-name: ""
+        bank-id: ""
+        credit-card-expiry-date:
+          month: 12
+          year: 2030
+        encrypted-external-id: ""
+        card-holder-name: John Doe
+        bank-transit-number: ""
+        account-number: "4444444444444448"
+        type: VISA
+        encrypted-owner-id: ""
+        token: ""
+        default-flag: false
+      properties:
+        token:
+          description: "\nToken value obtained by a prior <profile>transaction <customer>\
+            \ block is not applicable as it will be pre-populated into the payment\
+            \ from the previously created profile.\nY - if tokenized profile use is\
+            \ requested. \nIf tokenization is used the only other field which may\
+            \ be optionally passed in the payment method is <cvv>.      \n"
+          example: ""
+          maxLength: 512
+          minLength: 1
+          type: string
+        account-number:
+          description: Credit card number or Bank Account Number
+          example: "4444444444444448"
+          maxLength: 32
+          minLength: 1
+          type: string
+        type:
+          enum:
+          - VISA
+          - MC
+          - AMEX
+          - CHQ
+          - SAV
+          - VISA_DEBIT
+          - MC_DEBIT
+          - DISC
+          - DISC_DEBIT
+          - PD
+          - WALKIN_CASH
+          - IONLINE
+          - IPPPAYS_KIOSK_CASH
+          - AP
+          - GP
+          - PAYPAL_ACCOUNT
+          - PAYPAL_CREDIT
+          - VENMO
+          - AMAZON_PAY
+          - WALMART_PAY
+          example: VISA
+          maxLength: 32
+          minLength: 1
+          type: string
+        card-holder-name:
+          description: Card/Account holder name. Note For additional payment methods
+            this can display as an email address.
+          example: John Doe
+          maxLength: 256
+          minLength: 1
+          type: string
+        cvv:
+          description: "CVV, CVD. Mandatory Y if credit card N if tokenization is\
+            \ used"
+          example: "123"
+          maxLength: 4
+          minLength: 1
+          type: string
+        credit-card-expiry-date:
+          $ref: '#/components/schemas/PaymentMethodCC_credit_card_expiry_date'
+        bank-id:
+          description: "The first three digits of the bank routing number, required\
+            \ if e-check"
+          example: ""
+          maxLength: 3
+          minLength: 1
+          type: string
+        bank-transit-number:
+          description: "The last six digits of the bank routing number, required if\
+            \ e-check"
+          example: ""
+          maxLength: 6
+          minLength: 1
+          type: string
+        fi-name:
+          description: Name of the bank
+          example: ""
+          maxLength: 32
+          minLength: 1
+          type: string
+        encrypted-owner-id:
+          example: ""
+          maxLength: 512
+          minLength: 1
+          type: string
+        encrypted-external-id:
+          example: ""
+          maxLength: 512
+          minLength: 1
+          type: string
+        default-flag:
+          default: false
+          description: This default-flag is for making the payment method a default
+            payment method.
+          example: false
+          type: boolean
+      type: object
+    ClientConfig:
+      example:
+        authorization: authorization
+        appearance:
+          theme: paymentus
+          styles:
+            fontSize: 14px
+        translations:
+          key:
+            key: value
+        paymentMethodOptions:
+          card:
+            spinner: true
+            customErrorMessages:
+              cardNumber: Invalid card number
+              expiryDate: Invalid expiry date
+              cvv: Invalid CVV
+              zip: Invalid ZIP code
+            defaultValues:
+              cardNumber: "4111111111111111"
+              expiryDate: 12/2023
+              cvv: "123"
+              zip: "12345"
+            messages:
+              cardNumber: Enter your card number
+              expiryDate: Enter the expiry date
+              cvv: Enter the CVV
+              zip: Enter the ZIP code
+            placeholders:
+              cardNumber: 4111 1111 1111 1111
+              expiryDate: MM/YYYY
+              cvv: "123"
+              zip: "12345"
+              name: John Doe
+            masks:
+              cardNumber: "#### #### #### ####"
+              expiryDate: '##/####'
+              cvv: '###'
+              zip: '#####'
+            hidden:
+              cardNumber: false
+              expiryDate: false
+              cvv: false
+              zip: false
+              name: false
+            styles:
+              selectors:
+                cardNumber: .card-number
+                expiryDate: .expiry-date
+                cvv: .cvv
+                zip: .zip
+                name: .name
+              styles:
+                color: black
+                fontSize: 16px
+            disabled:
+              cardNumber: false
+              expiryDate: false
+              cvv: false
+              zip: false
+              name: false
+            validationRules:
+              cardNumber: required|cardNumber
+              expiryDate: required|expiryDate
+              cvv: required|cvv
+              zip: required|zip
+              name: required|name
+            layout: vertical
+        language: fr
+        iframeUrl: https://paymentus.com/iframe
+        tenant: abc
+      properties:
+        authorization:
+          type: string
+        paymentMethodOptions:
+          $ref: '#/components/schemas/PaymentMethodOptions'
+        appearance:
+          $ref: '#/components/schemas/ClientConfig_appearance'
+        language:
+          example: fr
+          type: string
+        iframeUrl:
+          example: https://paymentus.com/iframe
+          type: string
+        tenant:
+          description: Client tla
+          example: abc
+          type: string
+        translations:
+          additionalProperties:
+            example:
+              key: value
+            type: object
+          type: object
+      required:
+      - authorization
+      type: object
+    PaymentMethodOptions:
+      example:
+        card:
+          spinner: true
+          customErrorMessages:
+            cardNumber: Invalid card number
+            expiryDate: Invalid expiry date
+            cvv: Invalid CVV
+            zip: Invalid ZIP code
+          defaultValues:
+            cardNumber: "4111111111111111"
+            expiryDate: 12/2023
+            cvv: "123"
+            zip: "12345"
+          messages:
+            cardNumber: Enter your card number
+            expiryDate: Enter the expiry date
+            cvv: Enter the CVV
+            zip: Enter the ZIP code
+          placeholders:
+            cardNumber: 4111 1111 1111 1111
+            expiryDate: MM/YYYY
+            cvv: "123"
+            zip: "12345"
+            name: John Doe
+          masks:
+            cardNumber: "#### #### #### ####"
+            expiryDate: '##/####'
+            cvv: '###'
+            zip: '#####'
+          hidden:
+            cardNumber: false
+            expiryDate: false
+            cvv: false
+            zip: false
+            name: false
+          styles:
+            selectors:
+              cardNumber: .card-number
+              expiryDate: .expiry-date
+              cvv: .cvv
+              zip: .zip
+              name: .name
+            styles:
+              color: black
+              fontSize: 16px
+          disabled:
+            cardNumber: false
+            expiryDate: false
+            cvv: false
+            zip: false
+            name: false
+          validationRules:
+            cardNumber: required|cardNumber
+            expiryDate: required|expiryDate
+            cvv: required|cvv
+            zip: required|zip
+            name: required|name
+          layout: vertical
+      properties:
+        card:
+          $ref: '#/components/schemas/CardOptions'
+      type: object
+    CardOptions:
+      properties:
+        fields:
+          items:
+            enum:
+            - number
+            - expiry
+            - cvv
+            - zipcode
+            - name
+            type: string
+          type: array
+        spinner:
+          description: Whether to show a spinner while validating the card details.
+          type: boolean
+        customErrorMessages:
+          $ref: '#/components/schemas/CardOptions_customErrorMessages'
+        messages:
+          $ref: '#/components/schemas/CardOptions_messages'
+        placeholders:
+          $ref: '#/components/schemas/CardOptions_placeholders'
+        masks:
+          $ref: '#/components/schemas/CardOptions_masks'
+        hidden:
+          $ref: '#/components/schemas/CardOptions_hidden'
+        styles:
+          $ref: '#/components/schemas/CardOptions_styles'
+        disabled:
+          $ref: '#/components/schemas/CardOptions_disabled'
+        validationRules:
+          $ref: '#/components/schemas/CardOptions_validationRules'
+        layout:
+          description: Layout of the card form.
+          type: string
+      type: object
+    ConvenienceFeeCalculate:
+      example:
+        payment:
+          payment-method:
+            cvv: "123"
+            fi-name: ""
+            bank-id: ""
+            credit-card-expiry-date:
+              month: 12
+              year: 2030
+            encrypted-external-id: ""
+            card-holder-name: John Doe
+            bank-transit-number: ""
+            account-number: "4444444444444448"
+            type: VISA
+            encrypted-owner-id: ""
+            token: ""
+            default-flag: false
+          header: CC
+          customer:
+            address:
+              country: US
+              city: New York
+              state: NY
+              zip-code: "12345"
+              line1: 10 Fifth Ave.
+            day-phone-nr: 9051112233
+            middle-name: V
+            first-name: John
+            email: test@paymentus.com
+            last-name: Doe
+      properties:
+        payment:
+          $ref: '#/components/schemas/ConvenienceFeeCalculate_payment'
+      required:
+      - payment
+      type: object
+    ConvenienceFeeCalculateResponse:
+      example:
+        payment-response:
+          convenience-fee: 1.5
+          payment-amount: 11.23
+          total-amount: 12.73
+      properties:
+        payment-response:
+          $ref: '#/components/schemas/ConvenienceFeeCalculateResponse_payment_response'
+      type: object
+    ValidationRule:
+      properties:
+        type:
+          enum:
+          - regex
+          - server
+          - amount
+          - card
+          type: string
+        value:
+          description: For 'regex' or 'server' validation
+          type: string
+        minAmount:
+          description: For 'amount' validation
+          type: number
+        maxAmount:
+          description: For 'amount' validation
+          type: number
+        errorMessage:
+          description: Custom error message
+          type: string
+        cardTypes:
+          items:
+            $ref: '#/components/schemas/CardTypes'
+          type: array
+      required:
+      - type
+      type: object
+    CardTypes:
+      enum:
+      - visa
+      - mastercard
+      - amex
+      - discover
+      - dinners
+      - jcb
+      type: string
+    getToken_200_response:
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      properties:
+        token:
+          description: JWT token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+          type: string
+      required:
+      - token
+      type: object
+    makePayment_request:
+      oneOf:
+      - $ref: '#/components/schemas/MakeSinglePayment'
+      - $ref: '#/components/schemas/MakeASinglePaymentUsingWalletEntry'
+      - $ref: '#/components/schemas/MakeMultiplePayments'
+    makePayment_200_response:
+      oneOf:
+      - $ref: '#/components/schemas/SinglePaymentResponse'
+      - $ref: '#/components/schemas/SinglePaymentDuplicateResponse'
+      - $ref: '#/components/schemas/MultiplePaymentResponse'
+    MakeSinglePayment_payment_header:
+      properties:
+        operation:
+          description: Possible values are SALE - Submit payment CONV_FEE - query
+            processing fee VOID - Cancel payment
+          enum:
+          - SALE
+          - CONV_FEE
+          - VOID
+          example: SALE
+          maxLength: 32
+          minLength: 1
+          type: string
+        account-number:
+          description: customer account number
+          example: "6759370"
+          maxLength: 32
+          minLength: 1
+          type: string
+        account-token:
+          description: Account token
+          example: "123"
+          maxLength: 32
+          minLength: 1
+          type: string
+        auth-token1:
+          description: Liability token 1 char(32)
+          example: "12345"
+          maxLength: 32
+          minLength: 1
+          type: string
+        payment-amount:
+          example: 20.55
+          maximum: 99999999.99
+          minimum: 1
+          multipleOf: 0.01
+          type: number
+        payment-type-code:
+          description: Payment type code configured by Paymentus
+          example: UTILITY
+          maxLength: 32
+          minLength: 1
+          type: string
+        check-duplicates:
+          description: true/false - default false. Client can use this flag to block
+            duplicate payments from being accepted
+          example: false
+          type: boolean
+      required:
+      - account-number
+      - operation
+      - payment-amount
+      - payment-method
+      - payment-type-code
+      type: object
+    MakeSinglePayment_payment_payment_method_credit_card_expiry_date:
+      properties:
+        month:
+          description: credit card expiration month 2 digit
+          example: 12
+          maximum: 99
+          minimum: 1
+          type: number
+        year:
+          description: credit card expiration year 4 digit
+          example: 2030
+          maximum: 9999
+          minimum: 1
+          type: number
+      type: object
+    MakeSinglePayment_payment_payment_method:
+      properties:
+        account-number:
+          example: "4444444444444448"
+          type: string
+        type:
+          description: Possible values (based on configuration) VISA - Visa MC - MasterCard
+            AMEX - American Express CHQ - Checking Account SAV - Savings Account VISA_DEBIT
+            - Visa (Debit) MC_DEBIT MasterCard - (Debit) DISC - Discover DISC_DEBIT
+            - Discover (Debit) PD - ATM Card WALKIN_CASH - Walkin Cash IONLINE - INTERAC
+            Online IPPPAYS_KIOSK_CASH - IPPPays Kiosk Cash AP - Apple Pay GP - Google
+            Pay PAYPAL_ACCOUNT - PayPal PAYPAL_CREDIT - PayPal Credit VENMO - Venmo
+            AMAZON_PAY - Amazon Pay WALMART_PAY - Walmart Pay
+          enum:
+          - VISA
+          - MC
+          - AMEX
+          - CHQ
+          - SAV
+          - VISA_DEBIT
+          - MC_DEBIT
+          - DISC
+          - DISC_DEBIT
+          - PD
+          - WALKIN_CASH
+          - IONLINE
+          - IPPPAYS_KIOSK_CASH
+          - AP
+          - GP
+          - PAYPAL_ACCOUNT
+          - PAYPAL_CREDIT
+          - VENMO
+          - AMAZON_PAY
+          - WALMART_PAY
+          example: VISA
+          type: string
+        card-holder-name:
+          description: Account holder name
+          example: John Doe
+          maxLength: 256
+          minLength: 1
+          type: string
+        cvv:
+          description: "CVV, CVD"
+          example: "123"
+          maxLength: 4
+          minLength: 1
+          type: string
+        credit-card-expiry-date:
+          $ref: '#/components/schemas/MakeSinglePayment_payment_payment_method_credit_card_expiry_date'
+      required:
+      - account-number
+      - card-holder-name
+      - type
+      type: object
+    MakeSinglePayment_payment:
+      properties:
+        header:
+          $ref: '#/components/schemas/MakeSinglePayment_payment_header'
+        payment-method:
+          $ref: '#/components/schemas/MakeSinglePayment_payment_payment_method'
+        customer:
+          $ref: '#/components/schemas/Customer'
+      type: object
+    MakeMultiplePayments_payment_header_inner:
+      example:
+      - operation: SALE
+        account-number: "6759370"
+        payment-amount: 20.55
+        payment-type-code: UTILITY
+        check-duplicates: false
+      - operation: SALE
+        account-number: "6759371"
+        payment-amount: 20.55
+        payment-type-code: UTILITY
+        check-duplicates: false
+      properties:
+        operation:
+          description: Possible values are SALE – Submit payment CONV_FEE - query
+            processing fee VOID – Cancel payment
+          enum:
+          - SALE
+          - CONV_FEE
+          - VOID
+          maxLength: 32
+          minLength: 1
+          type: string
+        account-number:
+          description: customer account number
+          maxLength: 32
+          minLength: 1
+          type: string
+        payment-amount:
+          description: "amount to be paid in the format N(6,2)"
+          maximum: 99999999.99
+          minimum: 1
+          multipleOf: 0.01
+          type: number
+        payment-type-code:
+          description: Payment type code configured by Paymentus.
+          maxLength: 32
+          minLength: 1
+          type: string
+        check-duplicates:
+          description: true/false - default false. Client can use this flag to block
+            duplicate payments from being accepted
+          type: boolean
+      required:
+      - account-number
+      - operation
+      - payment-amount
+      - payment-type-code
+      type: object
+    MakeMultiplePayments_payment:
+      properties:
+        header:
+          items:
+            $ref: '#/components/schemas/MakeMultiplePayments_payment_header_inner'
+          type: array
+        payment-method:
+          items:
+            $ref: '#/components/schemas/PaymentMethodCC'
+          type: array
+        customer:
+          items:
+            $ref: '#/components/schemas/Customer'
+          type: array
+      type: object
+    MakeASinglePaymentUsingWalletEntry_payment_header:
+      properties:
+        operation:
+          description: Possible values are SALE - Submit payment CONV_FEE - query
+            processing fee VOID - Cancel payment
+          enum:
+          - SALE
+          - CONV_FEE
+          - VOID
+          example: SALE
+          maxLength: 32
+          minLength: 1
+          type: string
+        account-number:
+          description: customer account number
+          example: "6759370"
+          maxLength: 32
+          minLength: 1
+          type: string
+        payment-amount:
+          description: "amount to be paid in the format N(6,2)"
+          example: 11.23
+          maximum: 99999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        payment-type-code:
+          description: Payment type code configured by Paymentus.
+          example: UTILITY
+          maxLength: 32
+          minLength: 1
+          type: string
+        check-duplicates:
+          description: true/false - default false. Client can use this flag to block
+            duplicate payments from being accepted
+          example: false
+          type: boolean
+      required:
+      - account-number
+      - operation
+      - payment-amount
+      - payment-type-code
+      type: object
+    MakeASinglePaymentUsingWalletEntry_payment_payment_method:
+      properties:
+        token:
+          description: Token value obtained by a prior <profile> transaction <customer>
+            block is not applicable as it will be pre-populated into the payment from
+            the previously created profile. Y - if tokenized profile use is requested.
+            If tokenization is used the only other field which may be optionally passed
+            in the payment method is <cvv>.
+          example: BD307A3EC329E10A2CFF8FB87480823DA114F8F4
+          maxLength: 512
+          minLength: 1
+          type: string
+      type: object
+    MakeASinglePaymentUsingWalletEntry_payment:
+      properties:
+        header:
+          $ref: '#/components/schemas/MakeASinglePaymentUsingWalletEntry_payment_header'
+        payment-method:
+          $ref: '#/components/schemas/MakeASinglePaymentUsingWalletEntry_payment_payment_method'
+        customer:
+          $ref: '#/components/schemas/Customer'
+      type: object
+    AccountInfoResponse_account_info_response:
+      example:
+        auth-token1: auth-token1
+        max-pay-later-date: 2000-01-23
+        validation-status: PASSED
+        account-number: account-number
+        date-due: 2000-01-23
+        amount-due: 0.8008282
+      properties:
+        validation-status:
+          example: PASSED
+          type: string
+        account-number:
+          type: string
+        auth-token1:
+          type: string
+        amount-due:
+          format: float
+          type: number
+        date-due:
+          format: date
+          type: string
+        max-pay-later-date:
+          format: date
+          type: string
+      type: object
+    SinglePaymentResponse_payment_response:
+      example:
+        reference-number: 774187
+        payment-status-description: Approved
+        convenience-fee: 1.5
+        payment-date: 2000-01-23T04:56:07.000+00:00
+        payment-status: ACCEPTED
+        payment-amount: 20.55
+        total-amount: 22.05
+      properties:
+        reference-number:
+          description: Unique Paymentus payment reference number for operation SALE
+            and VOID only
+          example: 774187
+          maximum: 999999999999
+          minimum: 0
+          type: number
+        payment-date:
+          description: Date in the format MMddyyyyhhmmss. Only present for operation
+            SALE
+          format: date-time
+          type: string
+        payment-amount:
+          description: Bill amount due
+          example: 20.55
+          maximum: 9999999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        convenience-fee:
+          description: Convenience fee dependent on configuration
+          example: 1.5
+          maximum: 9999999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        total-amount:
+          description: Total amount charged
+          example: 22.05
+          maximum: 9999999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        payment-status-description:
+          description: "Describes the reason the payment has the status that it does.\
+            \ Appears in the following accepted/sale, declined/sale, accepted/void,\
+            \ declined/void"
+          example: Approved
+          maxLength: 256
+          minLength: 1
+          type: string
+        payment-status:
+          description: "One of ACCEPTED, FAILED, DECLINED, SCHEDULED"
+          enum:
+          - ACCEPTED
+          - FAILED
+          - DECLINED
+          - SCHEDULED
+          example: ACCEPTED
+          maxLength: 32
+          minLength: 1
+          type: string
+      required:
+      - payment-status
+      type: object
+    MultiplePaymentResponse_inner_payment_response:
+      properties:
+        account-number:
+          type: string
+        reference-number:
+          type: string
+        payment-date:
+          type: string
+        payment-amount:
+          type: string
+        convenience-fee:
+          type: string
+        total-amount:
+          type: string
+        payment-status-description:
+          type: string
+        payment-status:
+          type: string
+      type: object
+    MultiplePaymentResponse_inner:
+      properties:
+        payment-response:
+          $ref: '#/components/schemas/MultiplePaymentResponse_inner_payment_response'
+      type: object
+    SinglePaymentDuplicateResponse_payment_response_errors:
+      properties:
+        key:
+          example: xmlPayment.duplicate
+          type: string
+        value:
+          example: Duplicate XML payment
+          type: string
+      type: object
+    SinglePaymentDuplicateResponse_payment_response:
+      properties:
+        payment-status-description:
+          description: "Describes the reason the payment has the status that it does.\
+            \ Appears in the following accepted/sale, declined/sale, accepted/void,\
+            \ declined/void"
+          maxLength: 256
+          minLength: 1
+          type: string
+        payment-status:
+          description: One of -ACCEPTED  -FAILED -DECLINED -SCHEDULED
+          example: FAILED
+          maxLength: 32
+          minLength: 1
+          type: string
+        errors:
+          $ref: '#/components/schemas/SinglePaymentDuplicateResponse_payment_response_errors'
+      type: object
+    PaymentMethodCC_credit_card_expiry_date:
+      example:
+        month: 12
+        year: 2030
+      properties:
+        month:
+          description: credit card expiration month 2 digit
+          example: 12
+          maximum: 99
+          minimum: 0
+          type: number
+        year:
+          description: credit card expiration year 4 digit
+          example: 2030
+          maximum: 9999
+          minimum: 0
+          type: number
+      type: object
+    ClientConfig_appearance:
+      example:
+        theme: paymentus
+        styles:
+          fontSize: 14px
+      properties:
+        theme:
+          example: paymentus
+          type: string
+        styles:
+          example:
+            fontSize: 14px
+          type: object
+      type: object
+    CardOptions_customErrorMessages:
+      description: Custom error messages for card validation.
+      properties:
+        cardNumber:
+          type: string
+        expiryDate:
+          type: string
+        cvv:
+          type: string
+        zip:
+          type: string
+      type: object
+    CardOptions_messages:
+      description: Messages displayed in the card form.
+      properties:
+        cardNumber:
+          type: string
+        expiryDate:
+          type: string
+        cvv:
+          type: string
+        zip:
+          type: string
+      type: object
+    CardOptions_placeholders:
+      description: Placeholder text for input fields.
+      properties:
+        cardNumber:
+          type: string
+        expiryDate:
+          type: string
+        cvv:
+          type: string
+        zip:
+          type: string
+        name:
+          type: string
+      type: object
+    CardOptions_masks:
+      description: Masks applied to input fields.
+      properties:
+        cardNumber:
+          type: string
+        expiryDate:
+          type: string
+        cvv:
+          type: string
+        zip:
+          type: string
+      type: object
+    CardOptions_hidden:
+      description: Whether the card field is hidden.
+      properties:
+        cardNumber:
+          type: boolean
+        expiryDate:
+          type: boolean
+        cvv:
+          type: boolean
+        zip:
+          type: boolean
+        name:
+          type: boolean
+      type: object
+    CardOptions_styles_selectors:
+      properties:
+        cardNumber:
+          type: string
+        expiryDate:
+          type: string
+        cvv:
+          type: string
+        zip:
+          type: string
+        name:
+          type: string
+      type: object
+    CardOptions_styles:
+      description: Styles applied to input fields.
+      properties:
+        selectors:
+          $ref: '#/components/schemas/CardOptions_styles_selectors'
+        styles:
+          type: object
+      type: object
+    CardOptions_disabled:
+      description: Whether the card field is disabled.
+      properties:
+        cardNumber:
+          type: boolean
+        expiryDate:
+          type: boolean
+        cvv:
+          type: boolean
+        zip:
+          type: boolean
+        name:
+          type: boolean
+      type: object
+    CardOptions_validationRules:
+      description: Validation rules for the card field.
+      properties:
+        cardNumber:
+          $ref: '#/components/schemas/ValidationRule'
+        expiryDate:
+          $ref: '#/components/schemas/ValidationRule'
+        cvv:
+          $ref: '#/components/schemas/ValidationRule'
+        zip:
+          $ref: '#/components/schemas/ValidationRule'
+        name:
+          $ref: '#/components/schemas/ValidationRule'
+      type: object
+    ConvenienceFeeCalculate_payment_header:
+      description: The category of payment.
+      example: CC
+      properties:
+        operation:
+          description: Possible value is CONV_FEE - query processing fee
+          enum:
+          - CONV_FEE
+          example: CONV_FEE
+          maxLength: 32
+          minLength: 1
+          type: string
+        account-number:
+          description: customer account number
+          example: "6759370"
+          maxLength: 32
+          minLength: 1
+          type: string
+        payment-amount:
+          description: "amount to be paid in the format N(6,2)"
+          example: 11.23
+          maximum: 99999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        payment-type-code:
+          description: Payment type code configured by Paymentus.
+          example: UTILITY
+          maxLength: 32
+          minLength: 1
+          type: string
+        check-duplicates:
+          description: true/false - default false. Client can use this flag to block
+            duplicate payments from being accepted
+          example: false
+          type: boolean
+      required:
+      - account-number
+      - operation
+      - payment-type-code
+      type: object
+    ConvenienceFeeCalculate_payment:
+      example:
+        payment-method:
+          cvv: "123"
+          fi-name: ""
+          bank-id: ""
+          credit-card-expiry-date:
+            month: 12
+            year: 2030
+          encrypted-external-id: ""
+          card-holder-name: John Doe
+          bank-transit-number: ""
+          account-number: "4444444444444448"
+          type: VISA
+          encrypted-owner-id: ""
+          token: ""
+          default-flag: false
+        header: CC
+        customer:
+          address:
+            country: US
+            city: New York
+            state: NY
+            zip-code: "12345"
+            line1: 10 Fifth Ave.
+          day-phone-nr: 9051112233
+          middle-name: V
+          first-name: John
+          email: test@paymentus.com
+          last-name: Doe
+      properties:
+        header:
+          $ref: '#/components/schemas/ConvenienceFeeCalculate_payment_header'
+        payment-method:
+          $ref: '#/components/schemas/PaymentMethodCC'
+        customer:
+          $ref: '#/components/schemas/Customer'
+      type: object
+    ConvenienceFeeCalculateResponse_payment_response:
+      example:
+        convenience-fee: 1.5
+        payment-amount: 11.23
+        total-amount: 12.73
+      properties:
+        payment-amount:
+          description: Bill payment amount
+          example: 11.23
+          maximum: 9999999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        total-amount:
+          description: Total amount charged
+          example: 12.73
+          maximum: 9999999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+        convenience-fee:
+          description: Convenience fee dependent on configuration
+          example: 1.5
+          maximum: 9999999999.99
+          minimum: 0
+          multipleOf: 0.01
+          type: number
+      type: object
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+    ApiKeyAuth:
+      in: header
+      name: X-Public-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http

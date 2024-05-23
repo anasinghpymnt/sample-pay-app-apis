@@ -1,0 +1,54 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Guest Pay: UI",
+            "runtimeExecutable": "npm",
+            "cwd": "${workspaceFolder}/app/",
+            "runtimeArgs": [
+              "start",
+            ],
+            "console": "integratedTerminal"
+          },
+
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Guest Pay: Backend",
+            "runtimeExecutable": "npm",
+            "cwd": "${workspaceFolder}/api/",
+            "runtimeArgs": [
+              "start",
+            ],
+            "console": "integratedTerminal",
+            "env": {
+              "XOTP_SERVER_URL": "https://devportal-sit.paymentus.io",
+              "BILLER_TLA": "ggfi",
+              "JWT_KEY": "D78E3BCC8CCE4A4B0E1A05C00F2B304C91689943DD2778D9AD1F2E92B0BA0DAC",
+              "GLOBAL_PASS": "Payuser@111",
+              "GLOBAL_USER": "payuser"
+
+            }
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Guest pay API Mocker",
+            "runtimeExecutable": "npx",
+            "runtimeArgs": [
+              "open-api-mocker",
+              "-s",
+              "api/schema/xotp.yaml",
+              "-w",
+              "-p",
+              "5001"
+            ],
+            "console": "integratedTerminal"
+          },
+    ]
+}
