@@ -5,6 +5,7 @@ const ExpressServer = require('./src/expressServer');
 const launchServer = async () => {
   try {
     // randomize port here 
+    const port = 8081;
     this.expressServer = new ExpressServer(port, config.OPENAPI_YAML);
     await this.expressServer.launch();
     logger.info('Express server running');
