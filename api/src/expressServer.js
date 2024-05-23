@@ -78,6 +78,10 @@ class ExpressServer {
       });
   }
 
+  getApp(){
+    return this.app;
+  }
+
 
   async close() {
     if (this.server !== undefined) {

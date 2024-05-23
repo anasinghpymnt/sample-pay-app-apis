@@ -1,6 +1,6 @@
-const config = require('./config');
-const logger = require('./logger');
-const ExpressServer = require('./expressServer');
+const config = require('./src/config');
+const logger = require('./src/logger');
+const ExpressServer = require('./src/expressServer');
 
 const launchServer = async () => {
   try {
@@ -15,4 +15,4 @@ const launchServer = async () => {
 
 launchServer().catch(e => logger.error(e));
 
-export default launchServer;
+module.exports = this.expressServer.getApp()
